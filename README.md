@@ -18,7 +18,7 @@ src                   ← ROS workspace
     └── setup.cfg        
 ```
 
-You can clone this repo and run things to see how they work. You cannot push any changes. 
+### You can clone this repo and run things to see how they work. You cannot push any changes. 
 
 Here are the steps to do to clone:
 - Open terminal
@@ -27,7 +27,7 @@ Here are the steps to do to clone:
 - From Github web, click green code button and copy SSH link
 - In terminal, do ``` git clone [INSERT LINK] ```
 
-Here are the steps to run things:
+### Here are the steps to run things:
 - fill
 -
 
