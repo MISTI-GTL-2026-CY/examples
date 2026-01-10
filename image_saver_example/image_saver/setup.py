@@ -9,7 +9,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('lib/' + package_name, ['image_save/image_saver.py'])
+        ('lib/' + package_name, ['image_saver/image_saver.py'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
