@@ -15,7 +15,5 @@ RUN set -e; \
 
 RUN set -e; \
     if [ -s requirements-python.txt ]; then \
-        apt update; \
-        xargs -a requirements-python.txt apt install -y; \
+        pip install -r requirements-python.txt; \
     fi
-
