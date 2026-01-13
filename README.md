@@ -9,7 +9,7 @@ Here we have examples of the following functionality for the DuckieBot:
 
 This is the structure of each workspace (shown specifically with the blinker package described in 1) but something similar holds for all the rest).
 ```
-src                   ← ROS workspace
+blinker_example     ← ROS workspace
 └── blinker/              ← ROS package
     ├── blinker/          ← Python module 
     │   └── blinker.py    ← Your actual ROS node code
