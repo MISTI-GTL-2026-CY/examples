@@ -4,6 +4,8 @@ import os
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
+from std_msgs.msg import Header
+from duckietown_msgs.msg import LEDPattern, WheelsCmdStamped
 import cv2
 import numpy as np
 from cv_bridge import CvBridge
@@ -19,7 +21,106 @@ class ImageSaver(Node):
             self.get_logger().error("VEHICLE_NAME not set")
             return
         self.counter = 0
-        self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.callback, 10)
+        self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.manager, 10)
+        self.create_subscription(WheelsCmdStamped, f'/{self.vehicle_name}/wheels_cmd', self.analyse_the_image, 10)
+
+
+    def manager(self,msg):
+        self.save_the_image(msg)
+        self.callback(self, msg)
+
+
+
+    def run_wheels(self, frame_id, vel_left, vel_right):
+        wheel_msg = WheelsCmdStamped()
+        header = Header()
+        header.stamp = self.get_clock().now().to_msg()
+        header.frame_id = frame_id
+        wheel_msg.header = header
+        wheel_msg.vel_left = vel_left
+        wheel_msg.vel_right = vel_right
+        self.wheels_pub.publish(wheel_msg)
+
+    def analyse_the_image(self, wheel_msg):  # scan the surroundings for the road, 
+        width,height = 640, 480   # then find the direction in which the road lies 
+        img = cv2.imread(f"{self.output_dir}/{self.counter//5*5}.jpg") # and change the velocities of the wheels to go to the road
+        RANGE = 50                     # it does not change the velocities of the wheels yet
+        
+        self.high_contrast(img)
+
+        yellow = [255, 255, 0]
+        average_x = 0
+        average_y = 0
+        counter = 0
+        for i in range(0,639,1):
+            for j in range(240,479):
+                px = img[j,i]
+                #print(i,j, px)
+
+                if (abs(int(px[2]) - yellow[0]) < RANGE) and (abs(int(px[1]) - yellow[1]) < RANGE) and (abs(int(px[0]) - yellow[2]) < RANGE):
+                    average_y += j
+                    average_x += i
+                    counter +=1 
+
+        average_x = average_x // counter
+        average_y = average_y // counter
+
+        average_y = 480 - average_y
+        average_x = average_x - 320
+
+        m = (average_y)/(average_x)
+        #print(m)
+        #print(average_x, average_y)
+
+        # subscribe to get velocities
+
+        vel_left = wheel_msg.vel_left
+        vel_right = wheel_msg.vel_right 
+
+        if m < 0:
+            if m > -1:
+                self.run_wheels(self, "left_callback", vel_left, vel_right) # none of this works 
+            elif m < -1:
+                self.run_wheels(self, "left_callback", vel_left, vel_right)
+        elif m > 0:
+            if m > 1:
+                self.run_wheels(self, "right_callback", vel_left, vel_right)
+            elif m < 1:
+                self.run_wheels(self, "right_callback", vel_left, vel_right)
+
+
+
+    def high_contrast(self,img): # make the surroundings contrasting, so road will be identified easier
+
+        width,height = 640, 480
+        basic_colours = [[0, 254, 255],[0,0,0],[255,255,255]] # BGR format --- yellow, black, white
+        #(255, 0, 0),(0, 255, 0),(0,0,255) --- blue, green, red
+
+        for i in range(0,639,1):
+            for j in range(0,479):
+                px = img[j,i]
+                List = []
+
+                for k in range(len(basic_colours)):
+                    
+                    value = (basic_colours[k][0] - int(px[0]))**2 + (basic_colours[k][1] - int(px[1]))**2 + (basic_colours[k][2] - int(px[2]))**2
+                    List.append(value)
+                Min = min(List)
+                Value = List.index(Min)
+                img[j,i] = basic_colours[Value]
+
+        cv2.imwrite(f"{self.output_dir}/{self.counter//5*5}.jpg",img)
+
+
+
+    def save_the_image(self, msg):
+        if self.counter % 5 != 0:
+            self.counter += 1
+            return
+        with open(self.output_dir + str(self.counter) + '.jpg', 'wb') as f:
+            self.get_logger().info(f'Saving image {self.counter}')
+            f.write(msg.data)
+        self.counter += 1
 
     def callback(self, msg):
         # Convert compressed image to OpenCV format
@@ -44,10 +145,12 @@ class ImageSaver(Node):
         if blue_pixels > 5000:  # threshold (tune this)
             self.get_logger().info("BLUE OBJECT DETECTED")
 
-            # Optional: save only when blue is detected
-            filename = os.path.join(self.output_dir, f"blue_{self.counter}.jpg")
-            cv2.imwrite(filename, frame)
-            self.counter += 1
+            # Optional: save only when blue is detected 
+    
+            # nope, not optional. I need it to direct the vehicle
+            #filename = os.path.join(self.output_dir, f"blue_{self.counter}.jpg")
+            #cv2.imwrite(filename, frame)
+            #self.counter += 1
 
 
 def main():
