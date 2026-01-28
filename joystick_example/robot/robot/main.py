@@ -79,7 +79,7 @@ class RobotController(Node):
 
     def move_forward(self):
         self.get_logger().info("Moving forward")
-        self.run_wheels('forward_callback', 0.5, 0.47)
+        self.run_wheels('forward_callback', 0.5, 0.475)
         #useless comment
 
     def move_backward(self):
