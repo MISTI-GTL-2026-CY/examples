@@ -14,8 +14,8 @@ class DispatcherKeyboard(Node):
     def __init__(self):
         super().__init__('dispatcher_keyboard')
 
-        self.vehicle_name = os.getenv("duckie02")
-        self.user = os.getenv("DMITRY")
+        self.vehicle_name = "duckie02"
+        self.user = os.getenv("USER_NAME")
 
         self.publisher = self.create_publisher(
             String,
