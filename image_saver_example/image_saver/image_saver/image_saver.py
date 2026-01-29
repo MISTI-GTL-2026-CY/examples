@@ -27,6 +27,8 @@ class ImageSaver(Node):
             self.get_logger().error("VEHICLE_NAME not set")
             return
         self.counter = 0
+        self.obstacle_detected = 0
+        
         self.wheels_pub = self.create_publisher(WheelsCmdStamped, f'/{self.vehicle_name}/wheels_cmd', 10)
 
         self.tof_sub = self.create_subscription(Range, f'/{self.vehicle_name}/range', self.check_range, 10)
@@ -34,15 +36,21 @@ class ImageSaver(Node):
 
     def check_range(self, msg):
         distance = msg.range
-        if distance >= 0.2:
-            self.move_forward()
-        else:
+        #if distance<0.2:
+        #    self.obstacle_detected = True
+        if distance <= 0.2:
             self.stop()
 
     def manager(self, msg):
         self.save_the_image(msg)
+<<<<<<< HEAD
         self.analyse_the_image()
         # self.callback(self, msg)
+=======
+        self.analyse_the_image(msg.data)
+        #self.callback(self, msg)
+
+>>>>>>> 0eaa360 (print everything in the terminal)
 
     def move_forward(self):
         self.run_wheels('forward_callback', DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
@@ -60,11 +68,25 @@ class ImageSaver(Node):
         wheel_msg.vel_right = vel_right
         self.wheels_pub.publish(wheel_msg)
 
+<<<<<<< HEAD
     def analyse_the_image(self):  # scan the surroundings for the road,
         width, height = 640, 480  # then find the direction in which the road lies
         img = cv2.imread(
             f"{self.output_dir}/{self.counter // 5 * 5}.jpg")  # and change the velocities of the wheels to go to the road
         RANGE = 50  # it does not change the velocities of the wheels yet
+=======
+    def analyse_the_image(self,img):  # scan the surroundings for the road, 
+        self.get_logger().info(f'got to analyse the image {img}')
+        #if self.obstacle_detected_detected: # supposed fix, temporary added
+        #    self.stop()
+        #    return
+        width,height = 640, 480   # then find the direction in which the road lies 
+        img = cv2.imread(f"{self.output_dir}/{self.counter//5*5}.jpg") # and change the velocities of the wheels to go to the road
+        RANGE = 50                     # it does not change the velocities of the wheels yet
+        
+        if img == None:
+            return
+>>>>>>> 0eaa360 (print everything in the terminal)
 
         self.high_contrast(img)
 
@@ -84,12 +106,21 @@ class ImageSaver(Node):
                     average_x += i
                     counter += 1
 
+        if counter == 0:
+            return                    
+
+        self.get_logger().info(f'the counter is {counter}')
+
         average_x = average_x // counter
         average_y = average_y // counter
+
+        if average_x == 0:
+            return
 
         average_y = 480 - average_y
         average_x = average_x - 320
 
+<<<<<<< HEAD
         m = (average_y) / (average_x)
         # print(m)
         # print(average_x, average_y)
@@ -105,15 +136,54 @@ class ImageSaver(Node):
                 self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT + 0.1, DEFAULT_VELOCITY_RIGHT)
             elif m < 1:
                 self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT + 0.05, DEFAULT_VELOCITY_RIGHT)
+=======
+
+        m = (average_y)/(average_x)
+        #print(m)
+        #print(average_x, average_y)
+        self.get_logger().info(f'm, average x, average y {m,average_x,average_y}')
+
+
+
+        if m < 0:
+            if m > -1:
+                self.run_wheels(self, "left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.1) # hopefully this will work
+                self.get_logger().info(f'turnning left strongly {m,average_x,average_y}')
+
+            elif m < -1:
+                self.run_wheels(self, "left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.05)
+                self.get_logger().info(f'turnning left softly {m,average_x,average_y}')
+
+        elif m > 0:
+            if m > 1:
+                self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT+0.1, DEFAULT_VELOCITY_RIGHT)
+                self.get_logger().info(f'turnning right strongly {m,average_x,average_y}')
+
+            elif m < 1:
+                self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT+0.05, DEFAULT_VELOCITY_RIGHT)
+                self.get_logger().info(f'turnning right softly {m,average_x,average_y}')
+
+        
+        #self.get_clock().sleep_for(Duration(seconds=0.2)) # restore velovity to the default value
+        #self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
+>>>>>>> 0eaa360 (print everything in the terminal)
 
         self.get_clock().sleep_for(Duration(seconds=0.2))  # restore velovity to the default value
         self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
 
+<<<<<<< HEAD
     def high_contrast(self, img):  # make the surroundings contrasting, so road will be identified easier
 
         width, height = 640, 480
         basic_colours = [[0, 254, 255], [0, 0, 0], [255, 255, 255], [255, 0, 0]]  # BGR format --- yellow, black, white
         # (255, 0, 0),(0, 255, 0),(0,0,255) --- blue, green, red
+=======
+    def high_contrast(self,img): # make the surroundings contrasting, so road will be identified easier
+        self.get_logger().info(f'We got to high contrast with the image {img}')
+        width,height = 640, 480
+        basic_colours = [[0, 254, 255],[0,0,0],[255,255,255],[255,0,0]] # BGR format --- yellow, black, white
+        #(255, 0, 0),(0, 255, 0),(0,0,255) --- blue, green, red
+>>>>>>> 0eaa360 (print everything in the terminal)
 
         for i in range(0, 639, 1):
             for j in range(0, 479):
