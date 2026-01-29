@@ -43,7 +43,7 @@ class ImageSaver(Node):
     def manager(self,msg):
         self.save_the_image(msg)
         self.analyse_the_image()
-        # self.callback(self, msg)
+        #self.callback(self, msg)
 
 
     def move_forward(self):
@@ -157,13 +157,13 @@ class ImageSaver(Node):
         # Blue mask
         #lower_blue = np.array([100, 150, 50])
         #upper_blue = np.array([140, 255, 255])
-        for i 
+        #for i 
         
         # How much blue is present?
-        blue_pixels = cv2.countNonZero(mask)
+        #blue_pixels = cv2.countNonZero(mask)
 
-        if blue_pixels > 5000:  # threshold (tune this)
-            self.get_logger().info("BLUE OBJECT DETECTED")
+       # if blue_pixels > 5000:  # threshold (tune this)
+        #    self.get_logger().info("BLUE OBJECT DETECTED")
 
             # Optional: save only when blue is detected 
     
