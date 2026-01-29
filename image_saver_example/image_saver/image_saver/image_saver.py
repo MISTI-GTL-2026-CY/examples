@@ -11,7 +11,7 @@ from sensor_msgs.msg import Range
 
 import cv2
 import numpy as np
-from cv_bridge import CvBridge
+
 
 DEFAULT_VELOCITY_RIGHT = 0.5
 DEFAULT_VELOCITY_LEFT = 0.475
