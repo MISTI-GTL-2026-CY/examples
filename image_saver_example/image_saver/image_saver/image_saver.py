@@ -12,7 +12,7 @@ from sensor_msgs.msg import Range
 import cv2
 import numpy as np
 
-
+#test
 DEFAULT_VELOCITY_RIGHT = 0.5
 DEFAULT_VELOCITY_LEFT = 0.475
 
