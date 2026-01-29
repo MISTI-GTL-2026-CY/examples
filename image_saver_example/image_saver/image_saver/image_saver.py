@@ -71,7 +71,7 @@ class ImageSaver(Node):
         # yellow = [255, 255, 0]
         black = [0, 0, 0]
         average_x = 0
-        average_y = 0
+        average_y = 0 # useless comment
         counter = 0
         for i in range(0, 639, 1):
             for j in range(240, 479):
