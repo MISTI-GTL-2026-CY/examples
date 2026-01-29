@@ -26,6 +26,8 @@ class ImageSaver(Node):
             self.get_logger().error("VEHICLE_NAME not set")
             return
         self.counter = 0
+        self.wheels_pub = self.create_publisher(WheelsCmdStamped, f'/{self.vehicle_name}/wheels_cmd', 10)
+
         self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.manager, 10)
 
 
