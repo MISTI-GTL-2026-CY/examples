@@ -43,7 +43,7 @@ class ImageSaver(Node):
     def manager(self,msg):
         self.save_the_image(msg)
         self.analyse_the_image()
-        self.callback(self, msg)
+        # self.callback(self, msg)
 
 
     def move_forward(self):
@@ -112,12 +112,10 @@ class ImageSaver(Node):
         self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
 
 
-
-
     def high_contrast(self,img): # make the surroundings contrasting, so road will be identified easier
 
         width,height = 640, 480
-        basic_colours = [[0, 254, 255],[0,0,0],[255,255,255]] # BGR format --- yellow, black, white
+        basic_colours = [[0, 254, 255],[0,0,0],[255,255,255],[255,0,0]] # BGR format --- yellow, black, white
         #(255, 0, 0),(0, 255, 0),(0,0,255) --- blue, green, red
 
         for i in range(0,639,1):
@@ -154,15 +152,13 @@ class ImageSaver(Node):
         # Convert to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+        blue = [0,0,255]
+
         # Blue mask
-        lower_blue = np.array([100, 150, 50])
-        upper_blue = np.array([140, 255, 255])
-        mask = cv2.inRange(hsv, lower_blue, upper_blue)
-
-        #debugging
-        cv2.imshow("Blue Mask", mask)
-        cv2.waitKey(1)
-
+        #lower_blue = np.array([100, 150, 50])
+        #upper_blue = np.array([140, 255, 255])
+        for i 
+        
         # How much blue is present?
         blue_pixels = cv2.countNonZero(mask)
 
