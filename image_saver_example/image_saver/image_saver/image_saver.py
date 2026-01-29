@@ -31,7 +31,7 @@ class ImageSaver(Node):
 
 
         self.tof_sub = self.create_subscription(Range, f'/{self.vehicle_name}/range', self.check_range, 10)
-        self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.manager, 10)
+        self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.save_the_image, 10)
 
     def check_range(self, msg):
         distance = msg.range
@@ -65,7 +65,7 @@ class ImageSaver(Node):
 
     def analyse_the_image(self):  # scan the surroundings for the road, 
         width,height = 640, 480   # then find the direction in which the road lies 
-        img = cv2.imread(f"{self.output_dir}/{self.counter//5*5}.jpg") # and change the velocities of the wheels to go to the road
+        img = cv2.imread(f"{self.output_dir}/{self.counter}.jpg") # and change the velocities of the wheels to go to the road
         RANGE = 50                     # it does not change the velocities of the wheels yet
         
         self.high_contrast(img)
@@ -136,9 +136,7 @@ class ImageSaver(Node):
 
 
     def save_the_image(self, msg):
-        if self.counter % 5 != 0:
-            self.counter += 1
-            return
+
         with open(self.output_dir + str(self.counter) + '.jpg', 'wb') as f:
             self.get_logger().info(f'Saving image {self.counter}')
             f.write(msg.data)
