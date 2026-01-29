@@ -7,6 +7,7 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Header
 from duckietown_msgs.msg import LEDPattern, WheelsCmdStamped
 from rclpy.time import Duration
+from sensor_msgs.msg import Range
 
 import cv2
 import numpy as np
@@ -28,14 +29,28 @@ class ImageSaver(Node):
         self.counter = 0
         self.wheels_pub = self.create_publisher(WheelsCmdStamped, f'/{self.vehicle_name}/wheels_cmd', 10)
 
+
+        self.tof_sub = self.create_subscription(Range, f'/{self.vehicle_name}/range', self.check_range, 10)
         self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.manager, 10)
 
+    def check_range(self, msg):
+        distance = msg.range
+        if distance >= 0.2:
+            self.move_forward()
+        else:
+            self.stop()
 
     def manager(self,msg):
         self.save_the_image(msg)
         self.analyse_the_image()
         self.callback(self, msg)
 
+
+    def move_forward(self):
+        self.run_wheels('forward_callback', DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
+
+    def stop(self):
+        self.run_wheels('stop_callback', 0.0, 0.0)
 
 
     def run_wheels(self, frame_id, vel_left, vel_right):
