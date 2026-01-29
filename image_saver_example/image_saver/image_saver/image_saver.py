@@ -12,7 +12,7 @@ from sensor_msgs.msg import Range
 import cv2
 import numpy as np
 
-# test
+#test
 DEFAULT_VELOCITY_RIGHT = 0.5
 DEFAULT_VELOCITY_LEFT = 0.475
 
@@ -31,6 +31,7 @@ class ImageSaver(Node):
         
         self.wheels_pub = self.create_publisher(WheelsCmdStamped, f'/{self.vehicle_name}/wheels_cmd', 10)
 
+
         self.tof_sub = self.create_subscription(Range, f'/{self.vehicle_name}/range', self.check_range, 10)
         self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.manager, 10)
 
@@ -41,22 +42,18 @@ class ImageSaver(Node):
         if distance <= 0.2:
             self.stop()
 
-    def manager(self, msg):
+    def manager(self,msg):
         self.save_the_image(msg)
-<<<<<<< HEAD
-        self.analyse_the_image()
-        # self.callback(self, msg)
-=======
         self.analyse_the_image(msg.data)
         #self.callback(self, msg)
 
->>>>>>> 0eaa360 (print everything in the terminal)
 
     def move_forward(self):
         self.run_wheels('forward_callback', DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
 
     def stop(self):
         self.run_wheels('stop_callback', 0.0, 0.0)
+
 
     def run_wheels(self, frame_id, vel_left, vel_right):
         wheel_msg = WheelsCmdStamped()
@@ -68,13 +65,6 @@ class ImageSaver(Node):
         wheel_msg.vel_right = vel_right
         self.wheels_pub.publish(wheel_msg)
 
-<<<<<<< HEAD
-    def analyse_the_image(self):  # scan the surroundings for the road,
-        width, height = 640, 480  # then find the direction in which the road lies
-        img = cv2.imread(
-            f"{self.output_dir}/{self.counter // 5 * 5}.jpg")  # and change the velocities of the wheels to go to the road
-        RANGE = 50  # it does not change the velocities of the wheels yet
-=======
     def analyse_the_image(self,img):  # scan the surroundings for the road, 
         self.get_logger().info(f'got to analyse the image {img}')
         #if self.obstacle_detected_detected: # supposed fix, temporary added
@@ -86,25 +76,23 @@ class ImageSaver(Node):
         
         if img == None:
             return
->>>>>>> 0eaa360 (print everything in the terminal)
 
         self.high_contrast(img)
 
         # yellow = [255, 255, 0]
-        black = [0, 0, 0]
+        black = [0,0,0]
         average_x = 0
         average_y = 0 # useless comment
         counter = 0
-        for i in range(0, 639, 1):
-            for j in range(240, 479):
-                px = img[j, i]
-                # print(i,j, px)
+        for i in range(0,639,1):
+            for j in range(240,479):
+                px = img[j,i]
+                #print(i,j, px)
 
-                if (abs(int(px[2]) - black[0]) < RANGE) and (abs(int(px[1]) - black[1]) < RANGE) and (
-                        abs(int(px[0]) - black[2]) < RANGE):
+                if (abs(int(px[2]) - black[0]) < RANGE) and (abs(int(px[1]) - black[1]) < RANGE) and (abs(int(px[0]) - black[2]) < RANGE):
                     average_y += j
                     average_x += i
-                    counter += 1
+                    counter +=1 
 
         if counter == 0:
             return                    
@@ -120,23 +108,6 @@ class ImageSaver(Node):
         average_y = 480 - average_y
         average_x = average_x - 320
 
-<<<<<<< HEAD
-        m = (average_y) / (average_x)
-        # print(m)
-        # print(average_x, average_y)
-
-        if m < 0:
-            if m > -1:
-                self.run_wheels("left_callback", DEFAULT_VELOCITY_LEFT,
-                                DEFAULT_VELOCITY_RIGHT + 0.1)  # hopefully this will work
-            elif m < -1:
-                self.run_wheels("left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT + 0.05)
-        elif m > 0:
-            if m > 1:
-                self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT + 0.1, DEFAULT_VELOCITY_RIGHT)
-            elif m < 1:
-                self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT + 0.05, DEFAULT_VELOCITY_RIGHT)
-=======
 
         m = (average_y)/(average_x)
         #print(m)
@@ -166,39 +137,30 @@ class ImageSaver(Node):
         
         #self.get_clock().sleep_for(Duration(seconds=0.2)) # restore velovity to the default value
         #self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
->>>>>>> 0eaa360 (print everything in the terminal)
 
-        self.get_clock().sleep_for(Duration(seconds=0.2))  # restore velovity to the default value
-        self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
 
-<<<<<<< HEAD
-    def high_contrast(self, img):  # make the surroundings contrasting, so road will be identified easier
-
-        width, height = 640, 480
-        basic_colours = [[0, 254, 255], [0, 0, 0], [255, 255, 255], [255, 0, 0]]  # BGR format --- yellow, black, white
-        # (255, 0, 0),(0, 255, 0),(0,0,255) --- blue, green, red
-=======
     def high_contrast(self,img): # make the surroundings contrasting, so road will be identified easier
         self.get_logger().info(f'We got to high contrast with the image {img}')
         width,height = 640, 480
         basic_colours = [[0, 254, 255],[0,0,0],[255,255,255],[255,0,0]] # BGR format --- yellow, black, white
         #(255, 0, 0),(0, 255, 0),(0,0,255) --- blue, green, red
->>>>>>> 0eaa360 (print everything in the terminal)
 
-        for i in range(0, 639, 1):
-            for j in range(0, 479):
-                px = img[j, i]
+        for i in range(0,639,1):
+            for j in range(0,479):
+                px = img[j,i]
                 List = []
 
                 for k in range(len(basic_colours)):
-                    value = (basic_colours[k][0] - int(px[0])) ** 2 + (basic_colours[k][1] - int(px[1])) ** 2 + (
-                                basic_colours[k][2] - int(px[2])) ** 2
+                    
+                    value = (basic_colours[k][0] - int(px[0]))**2 + (basic_colours[k][1] - int(px[1]))**2 + (basic_colours[k][2] - int(px[2]))**2
                     List.append(value)
                 Min = min(List)
                 Value = List.index(Min)
-                img[j, i] = basic_colours[Value]
+                img[j,i] = basic_colours[Value]
 
-        cv2.imwrite(f"{self.output_dir}/{self.counter // 5 * 5}.jpg", img)
+        cv2.imwrite(f"{self.output_dir}/{self.counter//5*5}.jpg",img)
+
+
 
     def save_the_image(self, msg):
         if self.counter % 5 != 0:
@@ -217,25 +179,25 @@ class ImageSaver(Node):
         # Convert to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        blue = [0, 0, 255]
+        blue = [0,0,255]
 
         # Blue mask
-        # lower_blue = np.array([100, 150, 50])
-        # upper_blue = np.array([140, 255, 255])
-        # for i
-
+        #lower_blue = np.array([100, 150, 50])
+        #upper_blue = np.array([140, 255, 255])
+        #for i 
+        
         # How much blue is present?
-        # blue_pixels = cv2.countNonZero(mask)
+        #blue_pixels = cv2.countNonZero(mask)
 
-    # if blue_pixels > 5000:  # threshold (tune this)
-    #    self.get_logger().info("BLUE OBJECT DETECTED")
+       # if blue_pixels > 5000:  # threshold (tune this)
+        #    self.get_logger().info("BLUE OBJECT DETECTED")
 
-    # Optional: save only when blue is detected
-
-    # nope, not optional. I need it to direct the vehicle
-    # filename = os.path.join(self.output_dir, f"blue_{self.counter}.jpg")
-    # cv2.imwrite(filename, frame)
-    # self.counter += 1
+            # Optional: save only when blue is detected 
+    
+            # nope, not optional. I need it to direct the vehicle
+            #filename = os.path.join(self.output_dir, f"blue_{self.counter}.jpg")
+            #cv2.imwrite(filename, frame)
+            #self.counter += 1
 
 
 def main():
@@ -247,4 +209,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
