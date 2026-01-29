@@ -99,17 +99,17 @@ class ImageSaver(Node):
 
         if m < 0:
             if m > -1:
-                self.run_wheels(self, "left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.1) # hopefully this will work
+                self.run_wheels("left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.1) # hopefully this will work
             elif m < -1:
-                self.run_wheels(self, "left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.05)
+                self.run_wheels("left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.05)
         elif m > 0:
             if m > 1:
-                self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT+0.1, DEFAULT_VELOCITY_RIGHT)
+                self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT+0.1, DEFAULT_VELOCITY_RIGHT)
             elif m < 1:
-                self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT+0.05, DEFAULT_VELOCITY_RIGHT)
+                self.run_wheels( "right_callback", DEFAULT_VELOCITY_LEFT+0.05, DEFAULT_VELOCITY_RIGHT)
         
         self.get_clock().sleep_for(Duration(seconds=0.2)) # restore velovity to the default value
-        self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
+        self.run_wheels("right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
 
 
     def high_contrast(self,img): # make the surroundings contrasting, so road will be identified easier
