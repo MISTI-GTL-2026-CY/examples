@@ -63,14 +63,15 @@ class ImageSaver(Node):
         wheel_msg.vel_right = vel_right
         self.wheels_pub.publish(wheel_msg)
 
-    def analyse_the_image(self, wheel_msg):  # scan the surroundings for the road, 
+    def analyse_the_image(self):  # scan the surroundings for the road, 
         width,height = 640, 480   # then find the direction in which the road lies 
         img = cv2.imread(f"{self.output_dir}/{self.counter//5*5}.jpg") # and change the velocities of the wheels to go to the road
         RANGE = 50                     # it does not change the velocities of the wheels yet
         
         self.high_contrast(img)
 
-        yellow = [255, 255, 0]
+        # yellow = [255, 255, 0]
+        black = [0,0,0]
         average_x = 0
         average_y = 0
         counter = 0
@@ -79,7 +80,7 @@ class ImageSaver(Node):
                 px = img[j,i]
                 #print(i,j, px)
 
-                if (abs(int(px[2]) - yellow[0]) < RANGE) and (abs(int(px[1]) - yellow[1]) < RANGE) and (abs(int(px[0]) - yellow[2]) < RANGE):
+                if (abs(int(px[2]) - black[0]) < RANGE) and (abs(int(px[1]) - black[1]) < RANGE) and (abs(int(px[0]) - black[2]) < RANGE):
                     average_y += j
                     average_x += i
                     counter +=1 
