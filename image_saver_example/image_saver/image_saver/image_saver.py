@@ -6,9 +6,14 @@ from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Header
 from duckietown_msgs.msg import LEDPattern, WheelsCmdStamped
+from rclpy.time import Duration
+
 import cv2
 import numpy as np
 from cv_bridge import CvBridge
+
+DEFAULT_VELOCITY_RIGHT = 0.5
+DEFAULT_VELOCITY_LEFT = 0.475
 
 
 class ImageSaver(Node):
@@ -22,11 +27,11 @@ class ImageSaver(Node):
             return
         self.counter = 0
         self.create_subscription(CompressedImage, f'/{self.vehicle_name}/image/compressed', self.manager, 10)
-        self.create_subscription(WheelsCmdStamped, f'/{self.vehicle_name}/wheels_cmd', self.analyse_the_image, 10)
 
 
     def manager(self,msg):
         self.save_the_image(msg)
+        self.analyse_the_image()
         self.callback(self, msg)
 
 
@@ -72,21 +77,22 @@ class ImageSaver(Node):
         #print(m)
         #print(average_x, average_y)
 
-        # subscribe to get velocities
 
-        vel_left = wheel_msg.vel_left
-        vel_right = wheel_msg.vel_right 
 
         if m < 0:
             if m > -1:
-                self.run_wheels(self, "left_callback", vel_left, vel_right) # none of this works 
+                self.run_wheels(self, "left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.1) # hopefully this will work
             elif m < -1:
-                self.run_wheels(self, "left_callback", vel_left, vel_right)
+                self.run_wheels(self, "left_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT+0.05)
         elif m > 0:
             if m > 1:
-                self.run_wheels(self, "right_callback", vel_left, vel_right)
+                self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT+0.1, DEFAULT_VELOCITY_RIGHT)
             elif m < 1:
-                self.run_wheels(self, "right_callback", vel_left, vel_right)
+                self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT+0.05, DEFAULT_VELOCITY_RIGHT)
+        
+        self.get_clock().sleep_for(Duration(seconds=0.2)) # restore velovity to the default value
+        self.run_wheels(self, "right_callback", DEFAULT_VELOCITY_LEFT, DEFAULT_VELOCITY_RIGHT)
+
 
 
 
